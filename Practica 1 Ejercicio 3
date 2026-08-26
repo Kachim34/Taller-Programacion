@@ -1,0 +1,178 @@
+{3. Netflix ha publicado la lista de películas que estarán disponibles durante el mes de
+septiembre de 2025. De cada película se conoce: código de película, código de género
+(1: acción, 2: aventura, 3: drama, 4: suspenso, 5: comedia, 6: bélico, 7: documental y 8:
+terror) y puntaje promedio otorgado por las críticas. Implementar un programa que
+invoque a módulos para cada uno de los siguientes puntos:
+a. Lea los datos de películas, almacenarlos por orden de llegada y agrupados por
+código de género, y retornar en una estructura de datos adecuada. La lectura
+finaliza cuando se lee el código de la película -1.
+b. Genere y retorne en un vector, para cada género, el código de película con
+mayor puntaje obtenido entre todas las críticas, a partir de la estructura
+generada en a).
+c. Ordene los elementos del vector generado en b) por puntaje utilizando el
+método visto en la teoría.
+d. Muestre el código de película con mayor puntaje y el código de película con
+menor puntaje, del vector obtenido en el punto c) 
+}
+
+{
+array of genre codes // list of movies in respective genre code // code of movie within array with most score // sort array of b) for points // show first and last element within array of c)
+}
+program ej2P1;
+const
+	generos = 8;
+type
+
+	maxElements = record
+		maxCode:integer;
+		maxValue:real;
+	end;
+	genres = 1..8;
+	movie = record
+		code: integer;
+		genre_code:genres;
+		average_score: real;
+	end;
+
+	listMovies = ^node;
+	
+	node = record
+		data: movie;
+		next: listMovies;
+	end;
+	
+	punteros = record
+		pri: listMovies;
+		ult: listMovies;
+	end;
+
+
+	vector = array[genres] of punteros;
+	generated_array = array[genres] of maxElements;
+
+procedure initialize(var v:vector);
+var
+	i:integer;
+begin
+	for i:=1 to 8 do
+	begin
+		v[i].pri:= nil;
+		v[i].ult:= nil;
+	end;
+end;
+
+procedure readData(var dm:movie);
+begin
+	writeln('Code');
+	readln(dm.code);
+	if dm.code <> -1 then
+	begin
+		writeln('Genre code');
+		readln(dm.genre_code);
+		writeln('Average score');
+		readln(dm.average_score);
+	end;
+end;
+
+
+procedure agregarAlFinal(var l:punteros; datamovie:movie);
+var
+	nue: listMovies;
+begin
+	new(nue);
+	nue^.data:=datamovie;
+	nue^.next:=nil;
+	
+	if (l.pri = nil) then
+		l.pri:=nue
+	else
+		l.ult^.next:= nue;
+	l.ult:=nue;
+end;
+
+procedure loadArray(var v:vector);
+var
+	datamovie : movie;
+begin
+	initialize(v);
+	readData(datamovie);
+	while (datamovie.code <> -1) do
+	begin
+		agregarAlFinal(v[datamovie.genre_code],datamovie);
+		readData(datamovie);
+	end;
+end;
+
+procedure printProcess(v:vector);
+var
+	i:integer;
+begin
+	for i:=1 to generos do
+	begin
+		while (v[i].pri <> nil) do
+		begin
+			writeln('MOVIE CODE----------');
+			writeln(v[i].pri^.data.code);
+			writeln('GENRE CODE----------');
+			writeln(v[i].pri^.data.genre_code);
+			writeln('-----------------------');
+			v[i].pri:= v[i].pri^.next;
+		end;
+	end;
+
+end;
+procedure searchMax(l:listMovies; var regMax:maxElements);
+begin
+	regMax.maxCode:= -1;
+	regMax.maxValue:= -1;
+	while (l <> nil) do
+	begin
+		if (l^.data.average_score > regMax.maxValue) then
+			begin
+				regMax.maxCode:=l^.data.code;
+				regMax.maxValue:= l^.data.average_score;
+			end;
+		l:=l^.next;
+	end;
+end;
+procedure generateArray(var gen_v:generated_array; main_v:vector);
+var
+	i:integer;
+begin
+	for i:=1 to generos do
+		searchMax(main_v[i].pri, gen_v[i]);
+end;
+procedure sortArray(var g_Array:generated_array);
+var
+	i,j,pos:integer;
+	item: maxElements;
+begin
+	for i:= 1 to (generos - 1) do
+	begin
+		pos:= i;
+		for j:= (i+1) to generos do
+			if g_Array[j].maxValue < g_array[pos].maxValue then pos := j;
+		item:= g_Array[pos];
+		g_array[pos]:=g_array[i];
+		g_array[i]:= item;
+	end;
+end;
+procedure printMaxAndMin(v:generated_array);
+begin
+	writeln('The film with the minimum score is : ', v[1].maxCode);
+	writeln('The film with the maximum score is : ', v[generos].maxCode);
+end;
+
+var
+	main_v : vector;
+	gen_array:generated_array;
+BEGIN
+	loadArray(main_v);
+	generateArray(gen_array, main_v);
+	sortArray(gen_array);
+	printMaxAndMin(gen_array);
+	printProcess(main_v)
+	
+	
+END.
+
