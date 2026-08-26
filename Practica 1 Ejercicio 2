@@ -1,0 +1,81 @@
+{2. El administrador de un edificio de oficinas cuenta, en papel, con la información del
+pago de las expensas de dichas oficinas. Implementar un programa que invoque a
+módulos para cada uno de los siguientes puntos:
+a. Genere un vector, sin orden, con a lo sumo las 300 oficinas que administra. De
+cada oficina se ingresa el código de identificación, DNI del propietario y valor
+de la expensa. La lectura finaliza cuando se ingresa el código de identificación
+-1, el cual no se procesa.
+b. Ordene el vector aplicando el método de selección, por código de
+identificación de la oficina.
+}
+
+
+
+program ej1P1;
+const oficces = 300;
+type
+	data = record
+		code: integer;
+		dni: integer;
+		value: integer;
+	end;
+
+	vector = array [1..oficces] of data;
+
+
+procedure readData(var d:data);
+begin
+	writeln('Iden code');
+	readln(d.code);
+	if (d.code <> -1) then
+	begin
+		writeln('DNI');
+		readln(d.dni);
+		writeln('Expense value');
+		readln(d.value);
+	end;
+end;
+
+procedure chargeArray(var v:vector; var diml: integer);
+var
+	data_value: data;
+begin
+	diml:=0;
+	readData(data_value);
+	while (data_value.code <> -1) and (diml < oficces) do
+	begin
+		diml:= diml + 1;
+		v[diml]:=data_value;
+		readData(data_value);
+	end;
+end;
+
+procedure sortArray(var v:vector; diml:integer);
+var
+	pos,i,j:integer;
+	item:data;
+begin
+	for i:= 1 to (diml-1) do
+	begin
+		pos:=i;
+		for j:= i+1 to diml do
+			if v[j].code < v[pos].code then pos:=j;
+		item:=v[pos];
+		v[pos]:=v[i];
+		v[i]:=item;	
+	end; 
+
+end;
+	
+var
+	v: vector;
+	diml: integer;
+	i:integer;
+BEGIN
+	chargeArray(v,diml);
+	sortArray(v,diml);
+	for i:=1 to diml do
+		writeln(v[i].value);
+END.
+
+    
