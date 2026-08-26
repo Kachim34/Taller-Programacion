@@ -1,0 +1,105 @@
+{4.- Implementar un programa que invoque a los siguientes módulos.
+a. Un módulo recursivo que retorne un vector de 30 números enteros “random” mayores a 300
+y menores a 550 (incluidos ambos).
+b. Un módulo que reciba el vector generado en a) y lo retorne ordenado. (Utilizar lo realizado
+en la práctica anterior)
+c. Un módulo que realice una búsqueda dicotómica en el vector, utilizando el siguiente
+encabezado:
+Procedure busquedaDicotomica (v: vector; ini,fin: indice; dato:integer; var pos: indice);
+Nota: El parámetro “pos” debe retornar la posición del dato o el valor -1 si el dato no se
+encuentra en el vector 
+}
+
+{
+* 30 numeros random > 300 y <550, ambos incluidos, dimf = 0}
+{
+* modulo ordenar usado en la practica anterior}
+{
+* modulo de busqueda dicotomica}
+{
+* definir constante
+* definir vector
+* invocar el proceso para generar vector
+* b
+* c}
+
+program practica2ej4;
+const
+	dimf = 30;
+type
+	int_array = array[1..dimf] of integer;
+	
+procedure generarArray(var v:int_array ; i:integer);
+begin
+	if (i <= dimf) then
+	begin
+		v[i]:=random(251)+ 300;
+		generarArray(v,i+1);
+	end;
+end;
+
+procedure sortArray(var v:int_array);
+var
+	item,i,j,pos:integer;
+begin	
+	for i:= 1 to (dimf-1) do
+	begin
+		pos:=i;
+		for j:= (i+1) to dimf do
+			if v[j] < v[pos] then pos:=j;
+	item:=v[pos];
+	v[pos]:=v[i];
+	v[i]:= item;
+	end;
+end;
+
+{
+* c. Un módulo que realice una búsqueda dicotómica en el vector, utilizando el siguiente
+encabezado:
+Procedure busquedaDicotomica (v: vector; ini,fin: indice; dato:integer; var pos: indice);
+Nota: El parámetro “pos” debe retornar la posición del dato o el valor -1 si el dato no se
+encuentra en el vector }
+
+
+procedure busquedaDicotomica (v: int_array; ini,fin: integer; dato:integer; var pos: integer);
+var
+	mitad:integer;
+	encontrado:boolean;
+begin
+	encontrado:=false;
+	pos:=-1;
+	while (ini <= fin) and (not encontrado) do
+	begin
+		mitad:= (ini+fin) div 2;
+		if (dato = v[mitad]) then
+		begin
+			encontrado:= true;
+			pos:=mitad;
+		end
+		else if dato < v[mitad] then
+			fin:=mitad-1
+		else if dato > v[mitad] then
+			ini:= mitad +1;
+	end;
+end;
+var
+	v:int_array;
+	i,n,pos:integer;
+	
+BEGIN
+	randomize;
+	i:=1;
+	generarArray(v,i);
+	sortArray(v);
+		for i :=1 to dimf do
+		writeln('Numero generado: ',v[i]);
+	writeln('Ingrese el numero a buscar');
+	readln(n);
+	busquedaDicotomica(v,i,dimf,n,pos);
+
+	if pos <> -1 then
+		writeln('el numero: ', n, ' se encuentra en el vector en la posicion: ',pos)
+	else
+		writeln('el numero: ', n, ' no se encuentra en el vector');
+END.
+
