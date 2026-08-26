@@ -1,0 +1,52 @@
+{3.- Escribir un programa que invoque a los siguientes módulos e informe el resultado:
+a. Un módulo recursivo que retorne un vector de a lo sumo 20 caracteres que conformen una
+palabra. La lectura de los caracteres termina en ‘.’
+b. Un módulo recursivo que reciba la “palabra” generada en a) y determine si dicha palabra es
+un palíndromo, es decir, si puede leerse de la misma manera de izquierda a derecha que de
+derecha a izquierda. Este módulo debe retornar el valor booleano correspondiente.
+}
+
+
+program untitled;
+const
+	dimf = 20;
+type
+	char_array = array[1..dimf] of char;
+procedure lecturaRecursivo(var v :char_array; var diml:integer);
+var
+	c:char;
+begin
+	writeln('Ingrese un caracter');
+	readln(c);
+	if (diml < dimf) and (c <> '.') then
+	begin
+		diml:= diml + 1;
+		v[diml]:=c;
+		lecturaRecursivo(v, diml);
+	end;
+end;
+
+function esPalindromo(v:char_array ; diml:integer; i:integer):boolean;
+begin
+	if (diml = 0) or (v[i] <> v[diml]) then
+		esPalindromo := false
+	else if (i >= diml) then
+		esPalindromo:=true
+	else
+		esPalindromo:=esPalindromo(v,diml-1,i+1);
+end;
+
+var
+	v:char_array;
+	i:integer;
+	diml:integer;
+BEGIN
+	diml:=0;
+	i:=1;
+	lecturaRecursivo(v,diml);
+	if esPalindromo(v,diml,i) then
+		writeln('La palabra es palindroma')
+	else
+		writeln('La palabra no es palindroma');
+END.
+
