@@ -1,0 +1,102 @@
+{2.- Escribir un programa que:
+a. Implemente un módulo recursivo que genere y retorne una lista de números enteros
+“random” en el rango 200-230. Finalizar con el número 200.
+b. Un módulo recursivo que reciba la lista generada en a) e imprima los valores de la lista en el
+mismo orden que están almacenados.
+c. Implemente un módulo recursivo que reciba la lista generada en a) e imprima los valores de
+la lista en orden inverso al que están almacenados.
+d. Implemente un módulo recursivo que reciba la lista generada en a) y devuelva el mínimo
+valor de la lista.
+e. Implemente un módulo recursivo que reciba la lista generada en a) y un valor y devuelva
+verdadero si dicho valor se encuentra en la lista o falso en caso contrario.
+}
+
+
+{modulo generarlista retornando numeros random 200-230/// modulo recursivo que reciba la lista e imprime///// modulo recursivo que imprima en la vuelta de el proceso////}
+program practica2ejercicio2;
+type
+	listaNum = ^nodo;
+	
+	nodo = record
+		num:integer;
+		sig:listaNum;
+	end;
+procedure generarLista(var l:listaNum);
+var
+	n:integer;
+	nue:listaNum;
+begin
+	n:=random(31)+200;
+	if n <> 200 then
+	begin
+		new(nue);
+		nue^.num:=n;	
+		generarLista(nue^.sig);
+		l:=nue;
+	end
+	else
+		l:=nil;
+end;
+procedure printList(l:listaNum);
+begin
+	if l <> nil then
+	begin
+		writeln('NUMERO: ',l^.num);
+		l:=l^.sig;
+		printlist(l);
+	end;
+end;
+procedure imprimirOrdenInverso(l:listaNum);
+begin
+	if l <> nil then
+	begin
+		imprimirOrdenInverso(l^.sig);
+		writeln('NUMERO: ', l^.num);
+	end;
+end;
+function minimoValor(l:listaNum):integer;
+var
+	minResto:integer;
+begin
+	if (l^.sig = nil) then 														{[2/AAAA] --> [6/BBBB] ---> [4/nil]			}
+		minimoValor:= l^.num
+	else
+	begin
+		minResto:=minimoValor(l^.sig);
+		if (l^.num < minResto) then
+			minimoValor:= l^.num
+		else
+			minimoValor:=minResto;
+	end;
+	
+end;
+function buscarElemento(l:listaNum; n:integer):boolean;
+begin
+	if (l = nil) then
+		buscarElemento:=false
+	else if (l^.num = n) then
+		buscarElemento:=true
+	else
+		buscarElemento:= buscarElemento(l^.sig,n);
+end;
+var
+	l:listaNum;
+	min:integer;
+	n:integer;
+BEGIN
+	min:=32767;
+	generarLista(l);
+	printList(l);
+	writeln('ORDEN INVERSO');
+	imprimirOrdenInverso(l);
+	min:= minimoValor(l);
+	writeln('MINIMO: ',min);
+	writeln('Escriba el elemento que desea buscar en la lista');
+	readln(n);
+	if buscarElemento(l,n) then
+		writeln('El valor se encuentra en la lista')
+	else
+		writeln('El valor no se encuentra en la lista');
+END.
+
+
