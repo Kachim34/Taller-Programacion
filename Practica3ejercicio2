@@ -1,0 +1,395 @@
+{
+2. Escribir un programa que:
+a. Implemente un módulo que genere aleatoriamente información de ventas de un comercio.
+Para cada venta generar código de producto (entre 1 y 100), fecha (dia, mes, año) y cantidad de
+unidades vendidas. Finalizar con el código de producto 0. Un producto puede estar en más de
+una venta. Se pide:
+i. Generar y retornar un árbol binario de búsqueda de ventas ordenado por código de
+producto. Los códigos repetidos van a la derecha.
+ii. Generar y retornar otro árbol binario de búsqueda de productos vendidos ordenado por
+código de producto. Cada nodo del árbol debe contener el código de producto y la
+cantidad total de unidades vendidas.
+iii. Generar y retornar otro árbol binario de búsqueda de productos vendidos ordenado por
+código de producto. Cada nodo del árbol debe contener el código de producto y la lista de
+las ventas realizadas del producto. Nota: No repetir información!!!
+Nota: El módulo debe retornar TRES árboles.
+b. Implemente un módulo que reciba el árbol generado en i. y una fecha (día, mes y año) y
+retorne la cantidad total de productos vendidos en la fecha recibida.
+c. Implemente un módulo que reciba el árbol generado en ii. y retorne el código de producto
+con mayor cantidad total de unidades vendidas.
+d. Implemente un módulo que reciba el árbol generado en iii. y retorne el código de producto
+con mayor cantidad de ventas.
+
+}
+
+
+program untitled;
+type
+	rangoCodigos = 0..100;
+
+	arbolVentas = ^nodoArbol;
+	
+	regFecha = record
+		dia:1..31;
+		mes:1..12;
+		anio:integer;
+	end;
+	
+	datosVenta = record
+		codigoProducto: rangoCodigos;
+		fecha:regFecha;
+		UnidadesVendidas:integer;
+	end;
+	
+	nodoArbol = record
+		venta:datosVenta;
+		HI:arbolVentas;
+		HD:arbolVentas;
+	end;
+{
+* ii. Generar y retornar otro árbol binario de búsqueda de productos vendidos ordenado por
+código de producto. Cada nodo del árbol debe contener el código de producto y la
+cantidad total de unidades vendidas.}
+		Arbol_Vendidos = ^nodoVendidos;
+		
+		datosVendida = record
+			codigoProducto: rangoCodigos;
+			UnidadesVendidas:integer;
+		end;
+		
+		nodoVendidos = record
+			ventaVendida: datosVendida;
+			HI:Arbol_Vendidos;
+			HD:Arbol_Vendidos;
+		end;
+{
+* iii. Generar y retornar otro árbol binario de búsqueda de productos vendidos ordenado por
+código de producto. Cada nodo del árbol debe contener el código de producto y la lista de
+las ventas realizadas del producto. Nota: No repetir información!!!
+Nota: El módulo debe retornar TRES árboles.}
+
+	listaVentas = ^nodo;
+	
+	regVentas = record
+		fecha:regFecha;
+		UnidadesVendidas:integer;
+	end;
+	
+	nodo = record
+		venta_de_lista:regVentas;
+		sig:listaVentas;
+	end;
+	
+	arbol_iii = ^nodoArbol_iii;
+	
+	nodoArbol_iii = record
+		codigo:rangoCodigos;
+		ventas_iii:listaVentas;
+		HI:arbol_iii;
+		HD:arbol_iii;
+	end;
+	
+procedure generarArboles(var a1:arbolVentas; var a2:Arbol_Vendidos; var a3:arbol_iii);
+{a. Implemente un módulo que genere aleatoriamente información de ventas de un comercio.
+Para cada venta generar código de producto (entre 1 y 100), fecha (dia, mes, año) y cantidad de					
+unidades vendidas. Finalizar con el código de producto 0. Un producto puede estar en más de
+una venta.}
+	{datosVenta = record
+		codigoProducto: rangoCodigos;
+		fecha:regFecha;
+		UnidadesVendidas:integer;}
+
+	procedure generarInformacion(var v:datosVenta);
+	begin
+		v.codigoProducto:= random(101);
+		if v.codigoProducto <> 0 then
+		begin
+			v.fecha.dia:= random(31) + 1;
+			v.fecha.mes:= random(12) + 1;
+			v.fecha.anio:=random(7) + 2020;
+			v.UnidadesVendidas:= random(150) + 1;
+		end;
+	end;
+	
+	procedure generarArbol_1(var a:arbolVentas; v:datosVenta);
+	begin
+		if (a = nil) then
+		begin
+			new(a);
+			a^.venta:=v;
+			a^.HI:=nil;
+			a^.HD:=nil;
+		end
+		else if (v.codigoProducto < a^.venta.codigoProducto) then
+			generarArbol_1(a^.HI,v)
+		else
+			generarArbol_1(a^.HD,v);
+	end;
+{ii. Generar y retornar otro árbol binario de búsqueda de productos vendidos ordenado por
+código de producto. Cada nodo del árbol debe contener el código de producto y la
+cantidad total de unidades vendidas.
+		Arbol_Vendidos = ^nodoVendidos;
+		
+		datosVendida = record
+			codigoProducto: rangoCodigos;
+			UnidadesVendidas:integer;
+		end;
+		
+		nodoVendidos = record
+			ventaVendida: datosVendida;
+			HI:Arbol_Vendidos;
+			HD:Arbol_Vendidos;
+		end;}
+	procedure generarArbol_2(var a:Arbol_Vendidos; c:integer; u:integer);
+	begin
+		if (a=nil) then
+		begin
+			new(a); a^.ventaVendida.codigoProducto:= c; a^.ventaVendida.UnidadesVendidas:=u; a^.HI:=nil; a^.HD:=nil;
+		end
+		else if (c = a^.ventaVendida.codigoProducto) then
+			a^.ventaVendida.UnidadesVendidas:= a^.ventaVendida.UnidadesVendidas + u
+		else if (c < a^.ventaVendida.codigoProducto) then
+			generarArbol_2(a^.HI,c,u)
+		else
+			generarArbol_2(a^.HD,c,u);
+	end;
+	
+{iii. Generar y retornar otro árbol binario de búsqueda de productos vendidos ordenado por
+código de producto. Cada nodo del árbol debe contener el código de producto y la lista de
+las ventas realizadas del producto. Nota: No repetir información!!!
+Nota: El módulo debe retornar TRES árboles.
+	listaVentas = ^nodo;
+	
+	regVentas = record
+		fecha:regFecha;
+		UnidadesVendidas:integer;
+	end;
+	
+	nodo = record
+		venta_de_lista:regVentas;
+		sig:listaVentas;
+	end;
+	
+	arbol_iii = ^nodoArbol_iii;
+	
+	nodoArbol_iii = record
+		codigo:rangoCodigos;
+		ventas_iii:listaVentas;
+		HI:arbol_iii;
+		HD:arbol_iii;
+	end;
+	}
+	
+	procedure generarArbol_3(var a:arbol_iii; c:integer; f:regFecha; u:integer);
+		procedure agregarAdelante(var l:listaVentas; f:regFecha; u:integer);
+		var
+			nue:listaVentas;
+		begin
+			new(nue);
+			nue^.venta_de_lista.fecha:=f;
+			nue^.venta_de_lista.UnidadesVendidas:=u;
+			nue^.sig:=l;
+			l:=nue;
+		end;
+	begin
+		if (a = nil) then begin
+			new(a);
+			a^.ventas_iii:=nil;
+			a^.codigo:=c;
+			a^.HI:=nil;
+			a^.HD:=nil;
+			agregarAdelante(a^.ventas_iii,f,u);
+		end
+		else if (c = a^.codigo) then
+			agregarAdelante(a^.ventas_iii,f,u)
+		else if (c < a^.codigo) then
+			generarArbol_3(a^.HI,c,f,u)
+		else
+			generarArbol_3(a^.HD,c,f,u);
+	end;
+	
+var
+	v:datosVenta;
+begin
+	a1:= nil; a2:=nil; a3:=nil;
+	generarInformacion(v);
+{i. Generar y retornar un árbol binario de búsqueda de ventas ordenado por código de
+producto. Los códigos repetidos van a la derecha.}
+	while (v.codigoProducto <> 0) do
+	begin
+		generarArbol_1(a1,v);
+		generarArbol_2(a2,v.codigoProducto,v.UnidadesVendidas);
+		generarArbol_3(a3,v.codigoProducto,v.fecha,v.UnidadesVendidas);
+		generarInformacion(v);
+	end;
+end;
+
+{b. Implemente un módulo que reciba el árbol generado en i. y una fecha (día, mes y año) y
+retorne la cantidad total de productos vendidos en la fecha recibida.
+*rangoCodigos = 0..100;
+
+	arbolVentas = ^nodoArbol;
+	
+	regFecha = record
+		dia:1..31;
+		mes:1..12;
+		anio:integer;
+	end;
+	
+	datosVenta = record
+		codigoProducto: rangoCodigos;
+		fecha:regFecha;
+		UnidadesVendidas:integer;
+	end;
+	
+	nodoArbol = record
+		venta:datosVenta;
+		HI:arbolVentas;
+		HD:arbolVentas;
+	end;}
+
+procedure leerDatos_b(a:arbolVentas);
+	procedure leerFecha(var r:regFecha);
+	begin
+		writeln('Ingrese el dia | 1..31');
+		readln(r.dia);
+		writeln('Ingrese el mes | 1..12');
+		readln(r.mes);
+		writeln('Ingrese el año | 2020..2026');
+		readln(r.anio);
+	end;
+	function totalProductosVendidos(a:arbolVentas;r:regFecha):integer;
+	begin
+		if (a = nil) then
+			totalProductosVendidos:=0
+		else if (a^.venta.fecha.dia = r.dia) and (a^.venta.fecha.mes = r.mes) and (a^.venta.fecha.anio = r.anio) then
+			totalProductosVendidos:= a^.venta.UnidadesVendidas + totalProductosVendidos(a^.HI,r) + totalProductosVendidos(a^.HD,r)
+		else
+			totalProductosVendidos:= totalProductosVendidos(a^.HI,r)+ totalProductosVendidos(a^.HD,r);
+	end;
+var
+	r:regFecha;
+begin
+	leerFecha(r);
+	writeln('se vendieron: ', totalProductosVendidos(a,r),' en esa fecha');
+end;
+{c. Implemente un módulo que reciba el árbol generado en ii. y retorne el código de producto
+con mayor cantidad total de unidades vendidas.
+Arbol_Vendidos = ^nodoVendidos;
+		
+		datosVendida = record
+			codigoProducto: rangoCodigos;
+			UnidadesVendidas:integer;
+		end;
+		
+		nodoVendidos = record
+			ventaVendida: datosVendida;
+			HI:Arbol_Vendidos;
+			HD:Arbol_Vendidos;
+		end;
+}
+
+procedure iniciar_v_c(a:Arbol_Vendidos);
+	function codigoMayorVendido(a:Arbol_Vendidos):integer;
+		procedure buscarMaximo(a:Arbol_Vendidos;var maxCodigo:integer; var maxUni:integer);
+		begin
+			if (a <> nil)then
+			begin
+				if (a^.ventaVendida.UnidadesVendidas > maxUni) then
+				begin
+					maxCodigo:=a^.ventaVendida.codigoProducto;
+					maxUni:= a^.ventaVendida.UnidadesVendidas;
+				end;
+				buscarMaximo(a^.HI,maxCodigo,maxUni);
+				buscarMaximo(a^.HD,maxCodigo,maxUni);
+			end;
+		end;
+	var
+		maxUni:integer;
+		maxCodigo:integer;
+	begin
+		maxUni := -1;  
+		maxCodigo := -1;
+		buscarMaximo(a,maxCodigo,maxUni);
+		codigoMayorVendido:=maxCodigo;
+	end;
+begin
+	writeln('El codigo con mayor cantidad de unidades vendidas fue: ',codigoMayorVendido(a));
+end;
+{d. Implemente un módulo que reciba el árbol generado en iii. y retorne el código de producto
+con mayor cantidad de ventas.
+	listaVentas = ^nodo;
+	
+	regVentas = record
+		fecha:regFecha;
+		UnidadesVendidas:integer;
+	end;
+	
+	nodo = record
+		venta_de_lista:regVentas;
+		sig:listaVentas;
+	end;
+	
+	arbol_iii = ^nodoArbol_iii;
+	
+	nodoArbol_iii = record
+		codigo:rangoCodigos;
+		ventas_iii:listaVentas;
+		HI:arbol_iii;
+		HD:arbol_iii;
+	end;
+	}
+function codigoMayorCantidadVentas(a:arbol_iii):integer;
+	function contarVentas(l:listaVentas):integer;
+	var
+		cant:integer;
+	begin
+		cant:=0;
+		while (l <> nil) do
+		begin
+			cant:= cant + 1;
+			l:=l^.sig;
+		end;
+		contarVentas:=cant;
+	end;
+	
+	procedure buscarMaximo(a:arbol_iii;var maxCodigo:integer ;var maxVentas:integer);
+	var
+		cantActual:integer;
+	begin
+		if (a <> nil) then
+		begin
+			cantActual:=contarVentas(a^.ventas_iii);
+			if (cantActual > maxVentas) then
+			begin
+				maxCodigo:=a^.codigo;
+				maxVentas:=cantActual;
+			end;
+			buscarMaximo(a^.HI,maxCodigo,maxVentas);
+			buscarMaximo(a^.HD,maxCodigo,maxVentas);
+		end;
+	end;
+	
+var
+	maxCodigo:integer;
+	maxVentas:integer;
+begin
+	maxCodigo:=-1;
+	maxVentas:=-1;
+	buscarMaximo(a,maxCodigo,maxVentas);
+	codigoMayorCantidadVentas:=maxCodigo;
+end;
+var
+	a1:arbolVentas;
+	a2:Arbol_Vendidos;
+	a3:arbol_iii;
+BEGIN
+	randomize();
+	generarArboles(a1,a2,a3);
+	leerDatos_b(a1);
+	iniciar_v_c(a2);
+	writeln('El codigo con mayor cantidad de ventas es: ', codigoMayorCantidadVentas(a3));
+	
+	
+END.
+
