@@ -1,0 +1,484 @@
+{4. Una empresa de alquiler de bicicletas desea procesar la información de los alquileres
+realizados durante un mes. De cada alquiler se conoce: código de bicicleta, número de
+cliente, día del alquiler, cantidad de horas alquiladas e importe abonado. La lectura de los
+alquileres finaliza cuando se ingresa el código de bicicleta 0.
+
+Implementar un programa que invoque a los siguientes módulos y compruebe el correcto
+funcionamiento del mismo.
+
+a. Un módulo que lea los alquileres y genere dos estructuras de datos, ambas eficientes
+para la búsqueda por código de bicicleta:
+i. En la primera estructura, cada alquiler debe almacenarse en un nodo diferente del
+árbol. Si se ingresa nuevamente un alquiler para una bicicleta cuyo código ya se
+encuentra en el árbol, el nuevo alquiler deberá insertarse a la derecha.
+ii. En la segunda estructura, cada nodo debe contener un código de bicicleta una sola
+vez y una lista con todos los alquileres realizados para dicha bicicleta.
+Nota: Prestar especial atención a los datos que se almacenan en cada estructura para
+evitar repetir información innecesariamente.
+
+b. Un módulo recursivo que reciba la estructura generada en i) y retorne el código de
+bicicleta más grande.
+c. Un módulo recursivo que reciba la estructura generada en ii) y retorne el código de
+bicicleta más pequeño.
+d. Un módulo recursivo que reciba la estructura generada en i) y un número de cliente.
+Debe retornar la cantidad de alquileres realizados por dicho cliente.
+e. Un módulo recursivo que reciba la estructura generada en ii) y un número de cliente.
+Debe retornar la cantidad de alquileres realizados por dicho cliente.
+f. Un módulo que reciba la estructura generada en i) y genere una nueva estructura
+ordenada por código de bicicleta, donde cada código aparezca una única vez junto con
+la cantidad total de horas alquiladas.
+g. Un módulo que reciba la estructura generada en ii) y genere una nueva estructura
+ordenada por código de bicicleta, donde cada código aparezca una única vez junto con
+la cantidad total de horas alquiladas.
+h. Un módulo recursivo que reciba la estructura generada en g) y muestre su contenido.
+i. Un módulo recursivo que reciba la estructura generada en i) y dos códigos de bicicleta.
+Debe retornar el importe total recaudado por los alquileres de las bicicletas cuyos
+códigos se encuentren comprendidos entre los dos valores recibidos, inclusive.
+j. Un módulo recursivo que reciba la estructura generada en ii) y dos códigos de bicicleta.
+Debe retornar el importe total recaudado por los alquileres de las bicicletas cuyos
+códigos se encuentren comprendidos entre los dos valores recibidos, inclusive.
+
+}
+
+
+program untitled;
+type
+	dia_rango = 1..31;
+
+	arbol = ^nodo_arbol;
+	arbol_2 = ^nodo_arbol_2;
+	lista = ^nodo_lista;
+	
+	data_lista = record
+		nro_cliente:integer;
+		dia_alquiler:dia_rango;
+		horas_alquilada:integer;
+		importe_abonado:real;
+	end;
+	nodo_lista = record
+		alquiler_lista:data_lista;
+		sig:lista;
+	end;
+
+	alquiler_reg = record	
+		codigo_bicicleta:integer;
+		nro_cliente:integer;
+		dia_alquiler:dia_rango;
+		horas_alquilada:integer;
+		importe_abonado:real;
+	end;
+	nodo_arbol = record
+		alquiler:alquiler_reg;
+		HI:arbol;
+		HD:arbol;
+	end;
+	
+	alquiler_2_reg = record
+		codigo_bicicleta:integer;
+		lista_alquileres:lista;
+	end;
+	
+	nodo_arbol_2 = record
+		alquiler_2:alquiler_2_reg;
+		HI:arbol_2;
+		HD:arbol_2;
+	end;
+{f. Un módulo que reciba la estructura generada en i) y genere una nueva estructura
+ordenada por código de bicicleta, donde cada código aparezca una única vez junto con
+la cantidad total de horas alquiladas.}
+
+	arbol_3 = ^nodo_arbol_3;
+	
+	reg_3 = record
+		codigo_bicicleta:integer;
+		total_horas_alquiladas:integer;
+	end;
+	
+	nodo_arbol_3 = record
+		datos_3:reg_3;
+		HI:arbol_3;
+		HD:arbol_3;
+	end;
+	
+	
+	
+	
+
+procedure generar_arboles(var a:arbol; var a2:arbol_2);
+
+	procedure leer_alquiler(var r:alquiler_reg);
+	begin
+		writeln('INGRESE EL CODIGO DE BICICLETA// 0 PARA TERMINAR');
+		readln(r.codigo_bicicleta);
+		if (r.codigo_bicicleta <> 0) then
+		begin
+			writeln('INGRESE EL NUMERO DE CLIENTE');
+			readln(r.nro_cliente);
+			writeln('INGRESE EL DIA DE ALQUILER----rango 1..31');
+			readln(r.dia_alquiler);
+			writeln('HORAS ALQUILADA');
+			readln(r.horas_alquilada);
+			writeln('IMPORTE ABONADO');
+			readln(r.importe_abonado);
+		end;
+	end;
+{a. Un módulo que lea los alquileres y genere dos estructuras de datos, ambas eficientes
+para la búsqueda por código de bicicleta:
+i. En la primera estructura, cada alquiler debe almacenarse en un nodo diferente del
+árbol. Si se ingresa nuevamente un alquiler para una bicicleta cuyo código ya se
+encuentra en el árbol, el nuevo alquiler deberá insertarse a la derecha.
+ii. En la segunda estructura, cada nodo debe contener un código de bicicleta una sola
+vez y una lista con todos los alquileres realizados para dicha bicicleta.
+Nota: Prestar especial atención a los datos que se almacenan en cada estructura para
+evitar repetir información innecesariamente.
+}
+	procedure insertar(var a:arbol;r:alquiler_reg);
+	begin
+		if (a = nil) then
+		begin
+			new(a);
+			a^.alquiler:=r;
+			a^.HI:=nil;
+			a^.HD:=nil;
+		end
+		else if (r.codigo_bicicleta < a^.alquiler.codigo_bicicleta) then
+			insertar(a^.HI,r)
+			else
+				insertar(a^.HD,r);
+	end;
+	procedure insertar_2(var a2:arbol_2;r:alquiler_reg);
+		procedure agregarAdelante(var l:lista;r:alquiler_reg);
+			procedure preparar_registro(r:alquiler_reg;var r2:data_lista);
+			begin
+				r2.nro_cliente:=r.nro_cliente;
+				r2.dia_alquiler:=r.dia_alquiler;
+				r2.horas_alquilada:=r.horas_alquilada;
+				r2.importe_abonado:=r.importe_abonado;
+			end;
+		var
+			r2:data_lista;
+			nue:lista;
+		begin
+			new(nue);
+			preparar_registro(r,r2);
+			nue^.alquiler_lista:=r2;
+			nue^.sig:=l;
+			l:=nue;
+		end;
+	begin
+		if (a2 = nil) then
+		begin
+			new(a2);
+			a2^.alquiler_2.codigo_bicicleta:=r.codigo_bicicleta;
+			a2^.alquiler_2.lista_alquileres:=nil;
+			agregarAdelante(a2^.alquiler_2.lista_alquileres,r);
+			a2^.HI:=nil;
+			a2^.HD:=nil;
+		end
+		else if (r.codigo_bicicleta = a2^.alquiler_2.codigo_bicicleta) then
+			agregarAdelante(a2^.alquiler_2.lista_alquileres,r)
+			else if (r.codigo_bicicleta < a2^.alquiler_2.codigo_bicicleta) then
+				insertar_2(a2^.HI,r)
+			else
+				insertar_2(a2^.HD,r);
+	end;
+var
+	r:alquiler_reg;
+begin
+	a:=nil;
+	a2:=nil;
+	write('INGRESO DE DATOS-----------------------------');
+	leer_alquiler(r);
+	while (r.codigo_bicicleta) <> 0 do
+	begin
+		insertar(a,r);
+		insertar_2(a2,r);
+		leer_alquiler(r);
+	end;
+end;
+{b. Un módulo recursivo que reciba la estructura generada en i) y retorne el código de
+bicicleta más grande.}
+procedure maximoBicicletacod(a:arbol);
+	function codigoMasGrandeBicicleta(a:arbol):integer;
+	begin
+		if (a=nil)then
+			codigoMasGrandeBicicleta:=-1
+		else if a^.HD = nil then
+			codigoMasGrandeBicicleta:=a^.alquiler.codigo_bicicleta
+		else
+			codigoMasGrandeBicicleta:=codigoMasGrandeBicicleta(a^.HD);
+	end;
+var
+	max:integer;
+begin
+	max:=codigoMasGrandeBicicleta(a);
+	if (max = -1) then
+		writeln('Arbol vacio')
+	else
+		writeln('MAXIMO: ',max);
+end;
+{c. Un módulo recursivo que reciba la estructura generada en ii) y retorne el código de
+bicicleta más pequeño.}
+procedure minimoBicicletacod(a2:arbol_2);
+	function codigoMinimoBicicleta(a2:arbol_2):integer;
+	begin
+		if (a2=nil)then
+			codigoMinimoBicicleta:=9999
+		else if a2^.HI = nil then
+			codigoMinimoBicicleta:=a2^.alquiler_2.codigo_bicicleta
+		else
+			codigoMinimoBicicleta:=codigoMinimoBicicleta(a2^.HI);
+	end;
+var
+	min:integer;
+begin
+	min:=codigoMinimoBicicleta(a2);
+	if (min = 9999) then
+		writeln('Arbol vacio')
+	else
+		writeln('MINIMO: ',min);
+end;
+{d. Un módulo recursivo que reciba la estructura generada en i) y un número de cliente.
+Debe retornar la cantidad de alquileres realizados por dicho cliente.}
+procedure alquileres_x_cliente(a:arbol);
+	function cant_alquileres_x_cliente(a:arbol;cliente:integer):integer;
+	begin
+		if (a = nil) then
+			cant_alquileres_x_cliente:=0
+		else if (a^.alquiler.nro_cliente = cliente) then
+			cant_alquileres_x_cliente:= 1 + cant_alquileres_x_cliente(a^.HI,cliente) + cant_alquileres_x_cliente(a^.HD,cliente)
+			else
+				cant_alquileres_x_cliente:=cant_alquileres_x_cliente(a^.HI,cliente) + cant_alquileres_x_cliente(a^.HD,cliente);
+	end;
+var
+	cliente:integer;
+begin
+	writeln('INGRESE EL NUMERO DE CLEINTE: ');readln(cliente);
+	writeln('LA CANTIDAD DE ALQUILERES REALIZADO POR EL CLIENTE CON NUMERO DE CLIENTE ',cliente,' ES DE ',cant_alquileres_x_cliente(a,cliente));
+end;
+{e. Un módulo recursivo que reciba la estructura generada en ii) y un número de cliente.
+Debe retornar la cantidad de alquileres realizados por dicho cliente.}
+procedure alquileres_x_cliente_2(a2:arbol_2);
+	function cant_alquileres_x_cliente_2(a2:arbol_2;cliente:integer):integer;
+		function recorrer_lista(l:lista;cliente:integer):integer;
+		var
+			cant:integer;
+		begin
+			cant:=0;
+			while (l <> nil) do
+			begin
+				if (l^.alquiler_lista.nro_cliente = cliente) then
+					cant:= cant + 1;
+				l:=l^.sig;
+			end;
+			recorrer_lista:=cant;
+		end;
+	begin
+		if (a2 = nil) then
+			cant_alquileres_x_cliente_2:=0
+		else
+			cant_alquileres_x_cliente_2:=recorrer_lista(a2^.alquiler_2.lista_alquileres,cliente) + cant_alquileres_x_cliente_2(a2^.HI,cliente) + cant_alquileres_x_cliente_2(a2^.HD,cliente);
+	end;
+var
+	cliente:integer;
+begin
+	writeln('INGRESE EL NUMERO DE CLEINTE: ');readln(cliente);
+	writeln('LA CANTIDAD DE ALQUILERES REALIZADO POR EL CLIENTE CON NUMERO DE CLIENTE ',cliente,' ES DE ',cant_alquileres_x_cliente_2(a2,cliente));
+end;
+{f. Un módulo que reciba la estructura generada en i) y genere una nueva estructura
+ordenada por código de bicicleta, donde cada código aparezca una única vez junto con
+la cantidad total de horas alquiladas.}
+procedure generar_arbol_f(a:arbol;var a3:arbol_3);
+	procedure generar(a:arbol;var a3:arbol_3);
+		procedure insertar_3(a:arbol;var a3:arbol_3);
+			procedure preparar_registro_3(var r:reg_3;r_arbol:alquiler_reg);
+			begin
+				r.codigo_bicicleta:=r_arbol.codigo_bicicleta;
+				r.total_horas_alquiladas:=r_arbol.horas_alquilada;
+			end;
+			procedure actualizar(var a3:arbol_3;a:arbol);
+			begin
+				a3^.datos_3.total_horas_alquiladas:=a3^.datos_3.total_horas_alquiladas + a^.alquiler.horas_alquilada;
+			end;
+		var
+			r:reg_3;
+		begin
+			if (a3 = nil) then
+			begin
+				new(a3);
+				preparar_registro_3(r,a^.alquiler);
+				a3^.datos_3:=r;
+				a3^.HI:=nil;
+				a3^.HD:=nil;
+			end
+			else if (a^.alquiler.codigo_bicicleta = a3^.datos_3.codigo_bicicleta) then
+				actualizar(a3,a)
+				else if (a^.alquiler.codigo_bicicleta < a3^.datos_3.codigo_bicicleta) then
+					insertar_3(a,a3^.HI)
+				else
+					insertar_3(a,a3^.HD);
+		end;
+	begin
+		if (a <> nil) then
+		begin
+			generar(a^.HI,a3);
+			insertar_3(a,a3);
+			generar(a^.HD,a3);
+		end;
+	end;
+begin
+	a3:=nil;
+	generar(a,a3);
+end;
+{g. Un módulo que reciba la estructura generada en ii) y genere una nueva estructura
+ordenada por código de bicicleta, donde cada código aparezca una única vez junto con
+la cantidad total de horas alquiladas.}
+
+
+
+procedure generar_arbol_g(a2:arbol_2;var a4:arbol_3);
+	procedure generar_g(a2:arbol_2; var a4:arbol_3);
+		procedure preparar_registro_g(a2:arbol_2;var r:reg_3);
+		function recorrer_lista_g(l:lista):integer;
+			var
+				total:integer;
+			begin
+				total:=0;
+				while (l<>nil) do
+				begin
+					total:=total + l^.alquiler_lista.horas_alquilada;
+					l:=l^.sig;
+				end;
+				recorrer_lista_g:=total;
+			end;
+		begin
+			r.codigo_bicicleta:=a2^.alquiler_2.codigo_bicicleta;
+			r.total_horas_alquiladas:=recorrer_lista_g(a2^.alquiler_2.lista_alquileres);
+		end;
+		procedure agregar(a2:arbol_2;var a4:arbol_3);
+		var
+			r:reg_3;
+		begin
+			new(a4);
+			preparar_registro_g(a2,r);
+			a4^.datos_3:=r;
+		end;
+	begin
+{g. Un módulo que reciba la estructura generada en ii) y genere una nueva estructura
+ordenada por código de bicicleta, donde cada código aparezca una única vez junto con
+la cantidad total de horas alquiladas.}
+		if (a2 = nil) then
+			a4:=nil
+		else
+		begin
+			agregar(a2,a4);
+			generar_g(a2^.HI,a4^.HI);
+			generar_g(a2^.HD,a4^.HD);
+		end
+	end;
+
+begin
+	a4:=nil;
+	generar_g(a2,a4);
+end;
+{h. Un módulo recursivo que reciba la estructura generada en g) y muestre su contenido.}
+procedure mostrar_g(a4:arbol_3);
+begin
+	if (a4 <> nil) then
+	begin
+		mostrar_g(a4^.HI);
+		writeln('CODIGO BICICLETA: ',a4^.datos_3.codigo_bicicleta);
+		writeln('TOTAL HORAS ALQUILADA: ',a4^.datos_3.total_horas_alquiladas);
+		mostrar_g(a4^.HD);
+	end;
+end;
+{i. Un módulo recursivo que reciba la estructura generada en i) y dos códigos de bicicleta.
+Debe retornar el importe total recaudado por los alquileres de las bicicletas cuyos
+códigos se encuentren comprendidos entre los dos valores recibidos, inclusive.}
+procedure total_recaudado(a:arbol);
+	function recaudado(a:arbol;x,y:integer):real;
+	begin
+		if (a = nil) then
+			recaudado:=0
+		else if (a^.alquiler.codigo_bicicleta >= x) then
+			if (a^.alquiler.codigo_bicicleta <= y) then
+				recaudado:=a^.alquiler.importe_abonado + recaudado(a^.HI,x,y) + recaudado(a^.HD,x,y)
+			else
+				recaudado:=recaudado(a^.HI,x,y)
+		else
+			recaudado:=recaudado(a^.HD,x,y);
+	end;
+var
+	x,y:integer;
+	importe_total:real;
+begin
+	writeln('INGRESE EL PRIMER CODIGO DE BICICLETA');
+	readln(x);
+	writeln('INGRESE EL SEGUNDO CODIGO DE BICICLETA');
+	readln(y);
+	importe_total:=recaudado(a,x,y);
+	if (importe_total = 0) then
+		writeln('RECAUDADO 0')
+	else
+		writeln('RECAUDADO: ',importe_total);
+end;
+{j. Un módulo recursivo que reciba la estructura generada en ii) y dos códigos de bicicleta.
+Debe retornar el importe total recaudado por los alquileres de las bicicletas cuyos
+códigos se encuentren comprendidos entre los dos valores recibidos, inclusive.}
+procedure total_recaudado_i(a2:arbol_2);
+	function recaudado_i(a2:arbol_2;x,y:integer):real;
+		function recorrer_lista_j(l:lista):real;
+			var
+				total:real;
+			begin
+				total:=0;
+				while (l<>nil) do
+				begin
+					total:=total + l^.alquiler_lista.importe_abonado;
+					l:=l^.sig;
+				end;
+				recorrer_lista_j:=total;
+			end;
+	begin
+		if (a2 = nil) then
+			recaudado_i:=0
+		else if (a2^.alquiler_2.codigo_bicicleta >= x) then
+			if (a2^.alquiler_2.codigo_bicicleta <= y) then
+				recaudado_i:=recorrer_lista_j(a2^.alquiler_2.lista_alquileres) + recaudado_i(a2^.HI,x,y) + recaudado_i(a2^.HD,x,y)
+			else
+				recaudado_i:=recaudado_i(a2^.HI,x,y)
+		else
+			recaudado_i:=recaudado_i(a2^.HD,x,y);
+	end;
+var
+	x,y:integer;
+	importe_total:real;
+begin
+	writeln('INGRESE EL PRIMER CODIGO DE BICICLETA');
+	readln(x);
+	writeln('INGRESE EL SEGUNDO CODIGO DE BICICLETA');
+	readln(y);
+	importe_total:=recaudado_i(a2,x,y);
+	if (importe_total = 0) then
+		writeln('RECAUDADO 0')
+	else
+		writeln('RECAUDADO: ',importe_total);
+end;
+var
+	a:arbol;
+	a2:arbol_2;
+	a_3:arbol_3;
+	a4:arbol_3;
+BEGIN
+	generar_arboles(a,a2);
+	maximoBicicletacod(a);
+	minimoBicicletacod(a2);
+	alquileres_x_cliente(a);
+	alquileres_x_cliente_2(a2);
+	generar_arbol_f(a,a_3);
+	generar_arbol_g(a2,a4);
+	mostrar_g(a4);
+	total_recaudado(a);
+	total_recaudado_i(a2);
+END.
+
