@@ -1,0 +1,220 @@
+{7) Una empresa aérea necesita un programa para procesar los pasajes vendidos en el mes de
+enero de 2026. De cada pasaje se conoce el código de vuelo, día del mes (1..31), DNI del
+pasajero, código ciudad destino y monto del pasaje. En el programa se debe
+a) Implementar un módulo que lea pasajes, genere y retorne un árbol binario de
+búsqueda por código de ciudad destino y que almacene una lista con los pasajes
+(código de vuelo, día del mes, DNI del pasajero y monto del pasaje) correspondientes.
+La lectura finaliza con dni 0.
+b) Implementar un módulo que reciba la estructura generada en el inciso a), dos códigos
+de destino y un DNI. El módulo debe retornar la cantidad de vuelos que realizó el
+pasajero con el DNI recibido cuyo código de destino está entre los dos códigos de
+destino recibidos (no incluirlos).
+c) Implementar un módulo que reciba la estructura generada en el inciso a) y retornar el
+monto total acumulado en cada día del mes.
+}
+
+
+program untitled;
+type
+	pasaje_reg = record
+		codVuelo:integer;
+		dia:1..31;
+		dni:integer;
+		codDestino:integer;
+		montoPasaje:real;
+	end;
+{--------------LISTA------------}
+	lista = ^nodo_lista;
+	
+	data = record
+		codVuelo:integer;
+		dia:1..31;				{REGISTRO DE LISTA}
+		dni:integer;			{PASAJE. PARA ACCEDER}
+		montoPasaje:real;
+	end;
+	
+	nodo_lista = record
+		pasaje:data;
+		sig:lista;
+	end;
+{--------------ARBOL-----------------}
+	
+	arbol = ^nodo_arbol;
+	
+	arbol_data = record
+		codDestino:integer;
+		listaPasajes:lista;
+	end;
+	
+	nodo_arbol = record
+		contenido:arbol_data;
+		HI,HD:arbol;
+	end;
+{-----------VECTOR PARA EL INCISO C---------------}
+
+	dias = array[1..31] of real;
+
+{-------------------------------------------------}
+{a) Implementar un módulo que lea pasajes, genere y retorne un árbol binario de
+búsqueda por código de ciudad destino y que almacene una lista con los pasajes
+(código de vuelo, día del mes, DNI del pasajero y monto del pasaje) correspondientes.
+La lectura finaliza con dni 0.}
+procedure inciso_a(var a:arbol);
+	procedure leer(var r:pasaje_reg);
+	begin
+		r.dni:=random(25);
+		if (r.dni <> 0) then
+		begin
+			r.codVuelo:=random(20)+1;
+			r.dia:=random(31)+1;
+			r.codDestino:=random(25);
+			r.montoPasaje:=random(4000)+1;
+		end;
+	end;
+procedure generar_arbol(var a:arbol;r:pasaje_reg);
+	procedure agregar_lista(var l:lista;r:pasaje_reg);
+		procedure asignar_registro(var r2:data;r:pasaje_reg);
+		begin
+			r2.codVuelo:=r.codVuelo;
+			r2.dia:=r.dia;
+			r2.dni:=r.dni;
+			r2.montoPasaje:=r.montoPasaje;
+		end;
+	var
+		nue:lista;
+		r2:data;
+	begin
+		new(nue);
+		asignar_registro(r2,r);
+		nue^.pasaje:=r2;
+		nue^.sig:=l;
+		l:=nue;
+	end;
+begin
+	if (a=nil) then
+	begin
+		new(a);
+		a^.contenido.codDestino:=r.codDestino;
+		a^.contenido.listaPasajes:=nil;
+		agregar_lista(a^.contenido.listaPasajes,r);
+		a^.HI:=nil;
+		a^.HD:=nil;
+	end
+	else
+		if (r.codDestino = a^.contenido.codDestino) then
+			agregar_lista(a^.contenido.listaPasajes,r)
+		else
+			if (r.codDestino < a^.contenido.codDestino) then
+				generar_arbol(a^.HI,r)
+			else
+				generar_arbol(a^.HD,r);
+end;
+var
+	r:pasaje_reg;
+begin
+	a:=nil;
+	leer(r);
+	while (r.dni <> 0) do
+	begin
+		generar_arbol(a,r);
+		leer(r);
+	end;
+end;
+{b) Implementar un módulo que reciba la estructura generada en el inciso a), dos códigos
+de destino y un DNI. El módulo debe retornar la cantidad de vuelos que realizó el
+pasajero con el DNI recibido cuyo código de destino está entre los dos códigos de
+destino recibidos (no incluirlos).}
+procedure inciso_b(a:arbol);
+	function cant_vuelos_dni(a:arbol;cod1,cod2,dni:integer):integer;
+		function recorrer_lista(l:lista;dni:integer):integer;
+		var
+			cant:integer;
+		begin
+			cant:=0;
+			while (l <> nil) do
+			begin
+				if (l^.pasaje.dni = dni) then
+					cant:=cant+1;
+				l:=l^.sig;
+			end;
+			recorrer_lista:=cant;
+		end;
+	begin
+		if (a = nil) then
+			cant_vuelos_dni:=0
+		else
+			if (a^.contenido.codDestino > cod1) then
+				if (a^.contenido.codDestino < cod2) then
+					cant_vuelos_dni:= recorrer_lista(a^.contenido.listaPasajes,dni) + cant_vuelos_dni(a^.HI,cod1,cod2,dni) + cant_vuelos_dni(a^.HD,cod1,cod2,dni)
+				else
+					cant_vuelos_dni:=cant_vuelos_dni(a^.HI,cod1,cod2,dni)
+			else
+				cant_vuelos_dni:=cant_vuelos_dni(a^.HD,cod1,cod2,dni);
+	end;
+var
+	cod1,cod2:integer;
+	dni:integer;
+	cant:integer;
+begin
+	writeln('CODIGO 1');
+	readln(cod1);
+	writeln('CODIGO 2');
+	readln(cod2);
+	writeln('DNI');
+	readln(dni);
+	cant:=cant_vuelos_dni(a,cod1,cod2,dni);
+	writeln('LA CANTIDAD BRODER FUE DE: ',cant);
+end;
+procedure imprimir_arbol(a:arbol);
+begin
+	if (a<> nil) then
+	begin
+		imprimir_arbol(a^.HI);
+		writeln('CODIGO DE DESTINO: ',a^.contenido.codDestino);
+		imprimir_arbol(a^.HD)
+	end;
+end;
+{c) Implementar un módulo que reciba la estructura generada en el inciso a) y retornar el
+monto total acumulado en cada día del mes.}
+procedure inciso_c(a:arbol;var v:dias);
+	procedure calcular_monto(a:arbol;var v:dias);
+		procedure act_monto(l:lista;var v:dias);
+		begin
+			while (l <> nil) do
+			begin
+				v[l^.pasaje.dia]:=v[l^.pasaje.dia] + l^.pasaje.montoPasaje;
+				l:=l^.sig;
+			end;
+		end;
+	begin
+		if (a<>nil) then
+		begin
+			act_monto(a^.contenido.listaPasajes,v);
+			calcular_monto(a^.HI,v);
+			calcular_monto(a^.HD,v);
+		end;
+	end;
+	procedure inicializar_vector(var v:dias);
+	var
+		i:integer;
+	begin
+		for i:=1 to 31 do
+			v[i]:=0;
+	end;
+begin
+	inicializar_vector(v);
+	calcular_monto(a,v);
+end;
+var
+	a:arbol;
+	v:dias;
+	i:integer;
+BEGIN
+	inciso_a(a);
+	inciso_b(a);
+	imprimir_arbol(a);
+	inciso_c(a,v);
+	for i:=1 to 31 do
+		writeln('DIA: ',i,' MONTO: ',v[i]);
+END.
+
